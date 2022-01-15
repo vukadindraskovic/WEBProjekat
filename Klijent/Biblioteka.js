@@ -504,7 +504,7 @@ export class Biblioteka
         {
             op = document.createElement("option");
             op.innerHTML = k.naziv;
-            op.value = k;
+            op.value = k.naziv;
             iznajmiKnjiguSelectKorisnik.appendChild(op);
         })
         roditelj.appendChild(iznajmiKnjiguSelectKorisnik);
@@ -519,7 +519,7 @@ export class Biblioteka
         {
             op = document.createElement("option");
             op.innerHTML = k.naziv;
-            op.value = k;
+            op.value = k.naziv;
             vratiKnjiguSelectKorisnik.appendChild(op);
         })
         roditelj.appendChild(vratiKnjiguSelectKorisnik);
@@ -570,7 +570,9 @@ export class Biblioteka
         dugmeIznajmi.onclick = (ev) => 
         {
             let korisnik = this.kontejner.querySelector(".iznajmiKnjiguSelectKorisnik");
+            console.log(korisnik.value);
             let knjiga = this.kontejner.querySelector(".iznajmiKnjiguSelectKnjiga");
+            console.log(knjiga.value);
             this.iznajmiKnjigu(korisnik.options[korisnik.selectedIndex].value, knjiga.options[knjiga.selectedIndex].value);
         }       
     }

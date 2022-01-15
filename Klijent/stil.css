@@ -1,0 +1,115 @@
+.glavniKontejner
+{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 5px;
+    padding: 3px;
+}
+
+.autorInput, .naslovInput
+{
+    display: flex;
+    flex: 0 0 200px;
+}
+
+.labelaNaslov, .dugmeDodajKorisnika
+{
+    text-align: center;
+}
+
+.labela
+{
+    text-align: left;
+}
+
+.red
+{
+    display: flex;
+    flex-direction: row;
+    flex: 0 1 auto;
+    justify-content: space-evenly;
+    text-align: center;
+    margin: 3px;
+    flex-wrap: wrap;
+}
+
+.divMiniForma
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    border: 1px solid black;
+    flex: 0 1 auto;
+}
+
+.divFormaKnjiga
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    flex: 1 1 auto;
+}
+
+.polica
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    border: 1px burlywood;
+    flex: 1 1 300px;
+    margin: 3px;
+    text-align: center;
+    background: burlywood;
+}
+
+.divPrikaz
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    flex: 1 1 auto;
+    margin: 3px;
+    text-align: center;
+    align-items: flex-end;
+}
+
+.divTop5
+{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    flex: 0 1 600px;
+    background-color:cyan;
+    margin: 3px;
+}
+
+.prikazTop5
+{
+    flex: 0 1 auto;
+    background-color:goldenrod
+}
+
+.rotate
+{
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 12px;
+}
+
+.dostupno
+{
+    background-color: greenyellow;
+}
+
+.nedostupno
+{
+    background-color: red;
+}
+
+.staviOkvir
+{
+    border: 1px solid black;
+    margin: 5px;
+}

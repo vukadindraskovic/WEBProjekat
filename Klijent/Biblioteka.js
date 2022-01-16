@@ -210,18 +210,6 @@ export class Biblioteka
 
     vratiKnjigu(korisnik, knjiga, ocena)
     {
-        if (korisnik === "")
-        {
-            alert("Morate izabrati korisnika");
-            return;
-        }
-
-        if (knjiga === "")
-        {
-            alert("Morate izabrati knjigu!");
-            return;
-        }
-
         fetch("https://localhost:5001/Iznajmljivanje/VratiKnjigu?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
         + "&nazivKorisnika=" + encodeURIComponent(korisnik) + "&nazivKnjige=" + encodeURIComponent(knjiga) + "&ocenaKorisnika=" + ocena,
         {
@@ -570,9 +558,17 @@ export class Biblioteka
         dugmeIznajmi.onclick = (ev) => 
         {
             let korisnik = this.kontejner.querySelector(".iznajmiKnjiguSelectKorisnik");
-            console.log(korisnik.value);
             let knjiga = this.kontejner.querySelector(".iznajmiKnjiguSelectKnjiga");
-            console.log(knjiga.value);
+            if (korisnik.options[korisnik.selectedIndex] == undefined)
+            {
+                alert("Morate izabrati korisnika!");
+                return;
+            }
+            if (knjiga.options[knjiga.selectedIndex] == undefined)
+            {
+                alert("Morate izabrati knjigu!");
+                return;
+            }
             this.iznajmiKnjigu(korisnik.options[korisnik.selectedIndex].value, knjiga.options[knjiga.selectedIndex].value);
         }       
     }

@@ -877,7 +877,16 @@ export class Biblioteka
     {
         if (this.pritisnutaKnjiga === null)
         {
-            alert("Morate kliknuti na knjigu koju zelite da obrisete!");
+            alert("Morate kliknuti na knjigu koju zelite da izmenite!");
+            return;
+        }
+
+        let autor = this.kontejner.querySelector(".autorInput").value;
+        let naslov = this.kontejner.querySelector(".naslovInput").value;
+
+        if (this.pritisnutaKnjiga.prikaz != autor + " - " + naslov)
+        {
+            alert("Morate kliknuti na knjigu, i direktno kliknuti dugme 'Izmeni', bez da menjate autora i naslov knjige!");
             return;
         }
 
@@ -914,6 +923,15 @@ export class Biblioteka
         if (this.pritisnutaKnjiga === null)
         {
             alert("Morate kliknuti na knjigu koju zelite da obrisete!");
+            return;
+        }
+
+        let autor = this.kontejner.querySelector(".autorInput").value;
+        let naslov = this.kontejner.querySelector(".naslovInput").value;
+
+        if (this.pritisnutaKnjiga.prikaz != autor + " - " + naslov)
+        {
+            alert("Morate kliknuti na knjigu, i direktno kliknuti dugme 'Obrisi', bez da menjate autora i naslov knjige!");
             return;
         }
 

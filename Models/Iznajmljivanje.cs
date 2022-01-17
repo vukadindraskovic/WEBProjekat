@@ -19,8 +19,5 @@ namespace Models
         [Required]
         [JsonIgnore]
         public Knjiga Knjiga { get; set; }
-
-        //[Required]
-        //public bool KnjigaVracena { get; set; }
     }
 }

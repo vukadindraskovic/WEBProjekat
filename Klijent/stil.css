@@ -1,3 +1,12 @@
+body
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items:center
+}
+
 .glavniKontejner
 {
     display: flex;
@@ -6,6 +15,7 @@
     border-collapse: collapse;
     margin: 5px;
     padding: 3px;
+    flex: 1 1 auto;
 }
 
 .autorInput, .naslovInput

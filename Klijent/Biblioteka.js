@@ -436,18 +436,28 @@ export class Biblioteka
             {
                 alert("Morate uneti ime!");
                 reject;
+                return;
             }
     
             if (prezime === "")
             {
                 alert("Morate uneti prezime!");
                 reject;
+                return;
             }
     
             if (JMBG === "")
             {
                 alert("Morate uneti JMBG!");
                 reject;
+                return;
+            }
+
+            if (JMBG.length != 13)
+            {
+                alert("JMBG mora imati 13 cifara!");
+                reject;
+                return;
             }
     
             fetch("https://localhost:5001/Korisnik/DodajKorisnika?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
@@ -827,6 +837,12 @@ export class Biblioteka
         if (kolicina === "")
         {
             alert("Morate uneti kolicinu knjige!");
+            return;
+        }
+
+        if (kolicina <= 0)
+        {
+            alert("Knjiga mora imati kolicinu vecu od 0!");
             return;
         }
 

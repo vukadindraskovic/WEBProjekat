@@ -144,8 +144,11 @@ namespace WEBProjekat.Controllers
 
                 if (knjigaZaUnos != null)
                     knjiga1 = knjigaZaUnos;
-
-                return Ok(new { Poruka = $"Knjiga '{knjiga1.ZaPrikaz}' je uspešno dodata u biblioteku '{biblioteka1.Naziv}'."});
+                
+                return Ok(new { 
+                    Ocena = knjiga1.Ocena >= 1 ? Math.Round(knjiga1.Ocena, 2).ToString() : "UNK",
+                    Poruka = $"Knjiga '{knjiga1.ZaPrikaz}' je uspešno dodata u biblioteku '{biblioteka1.Naziv}'."
+                });
             }
             catch (Exception e)
             {
@@ -349,36 +352,6 @@ namespace WEBProjekat.Controllers
         private Knjiga DaLiPostojiKnjiga(string autorKnjige, string naslovKnjige)
         {
             return Context.Knjige.Where(p => p.Autor == autorKnjige && p.Naslov == naslovKnjige).FirstOrDefault();
-        }
-
-        [Route("PreuzmiOcenuKnjige")]
-        [HttpGet]
-        public ActionResult PreuzmiOcenuKnjige([FromQuery] string nazivKnjige)
-        {
-            if (string.IsNullOrWhiteSpace(nazivKnjige) || nazivKnjige.Length > 103)
-            {
-                return BadRequest( new { Poruka = "Pogrešan naziv knjige!"});
-            }
-
-            try
-            {
-                var knjiga = DaLiPostojiKnjiga(nazivKnjige);
-                if (knjiga == null) // ispitujemo da li knjiga postoji
-                {
-                    return BadRequest($"Knjiga '{nazivKnjige}' ne postoji.");
-                }
-
-                return Ok(
-                    new
-                    {
-                        Ocena = Math.Round(knjiga.Ocena, 2).ToString()
-                    }
-                );
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
         }
     }
 }

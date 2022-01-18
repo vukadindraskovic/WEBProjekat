@@ -822,7 +822,7 @@ export class Biblioteka
             {
                 p.json().then(k => 
                 {
-                    let novaKnjiga = new Knjiga(autor, naslov, autor + " - " + naslov, "UNK", kolicina, kolicina);
+                    let novaKnjiga = new Knjiga(autor, naslov, autor + " - " + naslov, k.ocena, kolicina, kolicina);
                     this.knjige.push(novaKnjiga);
                     this.pritisnutaKnjiga = novaKnjiga;
                     this.dodajKnjiguNaPolicu(novaKnjiga);

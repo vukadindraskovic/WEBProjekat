@@ -222,7 +222,10 @@ namespace WEBProjekat.Controllers
 
                 await Context.SaveChangesAsync();
 
-                return Ok(new { Poruka = $"Korisnik '{korisnik2.ZaPrikaz}' je vratio knjigu '{knjiga1.ZaPrikaz}' i dao ocenu '{ocenaKorisnika}'."});
+                return Ok(new { 
+                    Ocena = Math.Round(knjiga1.Ocena, 2),
+                    Poruka = $"Korisnik '{korisnik2.ZaPrikaz}' je vratio knjigu '{knjiga1.ZaPrikaz}' i dao ocenu '{ocenaKorisnika}'."
+                });
 
             }
             catch (Exception e)

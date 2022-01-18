@@ -77,7 +77,6 @@ export class Biblioteka
         let drugiRed = document.createElement("div");
         drugiRed.classList.add("staviOkvir");
         host.appendChild(drugiRed);
-        // drugiRed.classList.add("red");
 
         let divKnjige = document.createElement("div");
         divKnjige.classList.add("red");
@@ -124,7 +123,6 @@ export class Biblioteka
         {
             najboljeKnjige.forEach(k => k.crtaj(divPrikaz))
         })
-    
     }
 
     crtajVratiKnjigu(host)
@@ -208,78 +206,6 @@ export class Biblioteka
 
     }
 
-    vratiKnjigu(korisnik, knjiga, ocena)
-    {
-        fetch("https://localhost:5001/Iznajmljivanje/VratiKnjigu?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
-        + "&nazivKorisnika=" + encodeURIComponent(korisnik) + "&nazivKnjige=" + encodeURIComponent(knjiga) + "&ocenaKorisnika=" + ocena,
-        {
-            method: "DELETE"
-        }).then(p =>{
-                if (p.ok)
-                {
-                    p.json().then(k => {
-                        let pomKnjiga = this.knjige.find(k => k.prikaz == knjiga);
-                        pomKnjiga.preostalo++;
-                        this.preuzmiOcenuKnjige(pomKnjiga).then(() => 
-                        {
-                            this.updateKnjige(pomKnjiga);
-                            this.napuniKontrole();
-                            this.updateTop5().then(() => alert(k.poruka))
-                        })
-                    })
-                }
-                else
-                {
-                    p.json().then(k => alert(k.poruka))
-                }
-            })
-    }
-
-    updateTop5()
-    {
-        return new Promise((resolve) => 
-        {
-            let najboljeKnjige = [];
-            let divovi = this.kontejner.querySelectorAll(".prikazTop5");
-            let roditelj = divovi[0].parentNode;
-            divovi.forEach(d =>
-            {
-                    roditelj.removeChild(d);
-            })
-    
-            this.pribaviNajboljeKnjige(najboljeKnjige).then(() =>
-            {
-                najboljeKnjige.forEach(k => k.crtaj(roditelj))
-                resolve();
-            });
-
-        })
-    }
-
-    preuzmiOcenuKnjige(knjiga)
-    {
-        return new Promise((resolve, reject) => 
-        {
-            fetch("https://localhost:5001/Knjiga/PreuzmiOcenuKnjige?nazivKnjige=" + encodeURIComponent(knjiga.prikaz),
-            {
-                method: "GET"
-            }).then(p => {
-                if (p.ok)
-                {
-                    p.json().then(k => {
-                        knjiga.ocena = k.ocena;
-                        resolve();
-                    });
-                }
-                else
-                {
-                    alert(p.status);
-                    reject();
-                }
-            })
-        })
-    }
-
     crtajDivKnjige(host)
     {
         let polica = document.createElement("div");
@@ -299,60 +225,6 @@ export class Biblioteka
         formaKnjiga.classList.add("divFormaKnjiga");
         this.crtajFormuKnjiga(formaKnjiga);
         host.appendChild(formaKnjiga);
-    }
-
-    dodajKnjiguNaPolicu(knjiga)
-    {
-        let polica = this.kontejner.querySelector(".polica");
-        let dugme = knjiga.crtajKnjigu(polica);
-        dugme.onclick = (ev) =>
-        {
-            this.pritisnutaKnjiga = this.knjige.find(k => k.prikaz === dugme.value);
-            this.napuniKontrole();
-        }
-        this.dugmad.push(dugme);
-    }
-
-    napuniKontrole()
-    {
-        if (this.pritisnutaKnjiga == null)
-        {
-            this.ocistiKontrole();
-            return;
-        }
-
-        let autorInput = this.kontejner.querySelector(".autorInput");
-        autorInput.value = this.pritisnutaKnjiga.autor;
-
-        let naslovInput = this.kontejner.querySelector(".naslovInput");
-        naslovInput.value = this.pritisnutaKnjiga.naslov;
-
-        let kolicinaInput = this.kontejner.querySelector(".kolicinaInput");
-        kolicinaInput.value = this.pritisnutaKnjiga.kolicina;
-
-        let labelaPreostalo = this.kontejner.querySelector(".labelaPreostalo");
-        labelaPreostalo.innerHTML = this.pritisnutaKnjiga.preostalo;
-
-        let labelaOcena = this.kontejner.querySelector(".labelaOcena");
-        labelaOcena.innerHTML = this.pritisnutaKnjiga.ocena;
-    }
-
-    ocistiKontrole()
-    {
-        let autorInput = this.kontejner.querySelector(".autorInput");
-        autorInput.value = "";
-
-        let naslovInput = this.kontejner.querySelector(".naslovInput");
-        naslovInput.value = "";
-
-        let kolicinaInput = this.kontejner.querySelector(".kolicinaInput");
-        kolicinaInput.value = "";
-
-        let labelaPreostalo = this.kontejner.querySelector(".labelaPreostalo");
-        labelaPreostalo.innerHTML = "";
-
-        let labelaOcena = this.kontejner.querySelector(".labelaOcena");
-        labelaOcena.innerHTML = "";
     }
 
     crtajFormuKnjiga(host)
@@ -429,100 +301,6 @@ export class Biblioteka
         }
     }
 
-    dodajKorisnika(ime, prezime, JMBG)
-    {
-        return new Promise( (resolve, reject) => {
-            if (ime === "")
-            {
-                alert("Morate uneti ime!");
-                reject;
-                return;
-            }
-    
-            if (prezime === "")
-            {
-                alert("Morate uneti prezime!");
-                reject;
-                return;
-            }
-    
-            if (JMBG === "")
-            {
-                alert("Morate uneti JMBG!");
-                reject;
-                return;
-            }
-
-            if (JMBG.length != 13)
-            {
-                alert("JMBG mora imati 13 cifara!");
-                reject;
-                return;
-            }
-    
-            fetch("https://localhost:5001/Korisnik/DodajKorisnika?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
-            + "&ime=" + encodeURIComponent(ime) + "&prezime=" + encodeURIComponent(prezime) + "&JMBG=" + encodeURIComponent(JMBG),
-            {
-                method: "POST"
-            })
-            .then(p => {
-                if (p.ok)
-                {
-                    p.json().then(msg =>
-                    {
-                        this.korisnici.push(new Korisnik(ime + " " + prezime + " " + JMBG));
-                        this.updateKorisnike();
-                        alert(msg.poruka);
-                        resolve();
-                    })
-                }
-                else
-                {
-                    p.json().then(msg => alert(msg.poruka))
-                    reject();
-                }
-                    
-            })
-        })
-
-        
-          
-    }
-
-    updateKorisnike()
-    {
-        let iznajmiKnjiguSelectKorisnik = this.kontejner.querySelector(".iznajmiKnjiguSelectKorisnik");
-        let roditelj = iznajmiKnjiguSelectKorisnik.parentNode;
-        roditelj.removeChild(iznajmiKnjiguSelectKorisnik);
-
-        iznajmiKnjiguSelectKorisnik = document.createElement("select");
-        iznajmiKnjiguSelectKorisnik.classList.add("iznajmiKnjiguSelectKorisnik");
-        let op;
-        this.korisnici.forEach(k => 
-        {
-            op = document.createElement("option");
-            op.innerHTML = k.naziv;
-            op.value = k.naziv;
-            iznajmiKnjiguSelectKorisnik.appendChild(op);
-        })
-        roditelj.appendChild(iznajmiKnjiguSelectKorisnik);
-
-        let vratiKnjiguSelectKorisnik = this.kontejner.querySelector(".vratiKnjiguSelectKorisnik");
-        roditelj = vratiKnjiguSelectKorisnik.parentNode;
-        roditelj.removeChild(vratiKnjiguSelectKorisnik);
-
-        vratiKnjiguSelectKorisnik = document.createElement("select");
-        vratiKnjiguSelectKorisnik.classList.add("vratiKnjiguSelectKorisnik");
-        this.korisnici.forEach(k => 
-        {
-            op = document.createElement("option");
-            op.innerHTML = k.naziv;
-            op.value = k.naziv;
-            vratiKnjiguSelectKorisnik.appendChild(op);
-        })
-        roditelj.appendChild(vratiKnjiguSelectKorisnik);
-    }
-
     crtajIznajmiKnjigu(host)
     {
         let redIznajmiKnjigu = this.crtajRed(host);
@@ -583,6 +361,224 @@ export class Biblioteka
         }       
     }
 
+    crtajLabelu(host, tekst, klasa)
+    {
+        let labela = document.createElement("label");
+        labela.innerHTML = tekst;
+        labela.className = klasa;
+        host.appendChild(labela);
+
+        return labela;
+    }
+
+    crtajInput(host, klasa)
+    {
+        let input = document.createElement("input");
+        input.className = klasa;
+        host.appendChild(input);
+
+        return input;
+    }
+
+    crtajDugme(host, tekst, klasa)
+    {
+        let dugme = document.createElement("button");
+        dugme.innerHTML = tekst;
+        dugme.className = klasa;
+        host.appendChild(dugme);
+
+        return dugme;
+    }
+
+    vratiKnjigu(korisnik, knjiga, ocena)
+    {
+        fetch("https://localhost:5001/Iznajmljivanje/VratiKnjigu?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
+        + "&nazivKorisnika=" + encodeURIComponent(korisnik) + "&nazivKnjige=" + encodeURIComponent(knjiga) + "&ocenaKorisnika=" + ocena,
+        {
+            method: "DELETE"
+        }).then(p =>{
+            if (p.ok)
+            {
+                p.json().then(k => {
+                    let pomKnjiga = this.knjige.find(p => p.prikaz == knjiga);
+                    pomKnjiga.preostalo++;
+                    pomKnjiga.ocena = k.ocena;
+                    this.updateKnjige(pomKnjiga);
+                    this.napuniKontrole();
+                    this.updateTop5().then(() => alert(k.poruka));
+                })
+            }
+            else
+            {
+                p.json().then(k => alert(k.poruka))
+            }
+        })
+    }
+
+    updateTop5()
+    {
+        return new Promise((resolve) => 
+        {
+            let najboljeKnjige = [];
+            let divovi = this.kontejner.querySelectorAll(".prikazTop5");
+            let roditelj = divovi[0].parentNode;
+            divovi.forEach(d =>
+            {
+                    roditelj.removeChild(d);
+            })
+    
+            this.pribaviNajboljeKnjige(najboljeKnjige).then(() =>
+            {
+                najboljeKnjige.forEach(k => k.crtaj(roditelj))
+                resolve();
+            });
+        })
+    }
+
+    dodajKnjiguNaPolicu(knjiga)
+    {
+        let polica = this.kontejner.querySelector(".polica");
+        let dugme = knjiga.crtajKnjigu(polica);
+        dugme.onclick = (ev) =>
+        {
+            this.pritisnutaKnjiga = this.knjige.find(k => k.prikaz === dugme.value);
+            this.napuniKontrole();
+        }
+        this.dugmad.push(dugme);
+    }
+
+    napuniKontrole()
+    {
+        if (this.pritisnutaKnjiga == null)
+        {
+            this.ocistiKontrole();
+            return;
+        }
+
+        let autorInput = this.kontejner.querySelector(".autorInput");
+        autorInput.value = this.pritisnutaKnjiga.autor;
+
+        let naslovInput = this.kontejner.querySelector(".naslovInput");
+        naslovInput.value = this.pritisnutaKnjiga.naslov;
+
+        let kolicinaInput = this.kontejner.querySelector(".kolicinaInput");
+        kolicinaInput.value = this.pritisnutaKnjiga.kolicina;
+
+        let labelaPreostalo = this.kontejner.querySelector(".labelaPreostalo");
+        labelaPreostalo.innerHTML = this.pritisnutaKnjiga.preostalo;
+
+        let labelaOcena = this.kontejner.querySelector(".labelaOcena");
+        labelaOcena.innerHTML = this.pritisnutaKnjiga.ocena;
+    }
+
+    ocistiKontrole()
+    {
+        let autorInput = this.kontejner.querySelector(".autorInput");
+        autorInput.value = "";
+
+        let naslovInput = this.kontejner.querySelector(".naslovInput");
+        naslovInput.value = "";
+
+        let kolicinaInput = this.kontejner.querySelector(".kolicinaInput");
+        kolicinaInput.value = "";
+
+        let labelaPreostalo = this.kontejner.querySelector(".labelaPreostalo");
+        labelaPreostalo.innerHTML = "";
+
+        let labelaOcena = this.kontejner.querySelector(".labelaOcena");
+        labelaOcena.innerHTML = "";
+    }
+
+    dodajKorisnika(ime, prezime, JMBG)
+    {
+        return new Promise( (resolve, reject) => {
+            if (ime === "")
+            {
+                alert("Morate uneti ime!");
+                reject;
+                return;
+            }
+    
+            if (prezime === "")
+            {
+                alert("Morate uneti prezime!");
+                reject;
+                return;
+            }
+    
+            if (JMBG === "")
+            {
+                alert("Morate uneti JMBG!");
+                reject;
+                return;
+            }
+
+            if (JMBG.length != 13)
+            {
+                alert("JMBG mora imati 13 cifara!");
+                reject;
+                return;
+            }
+    
+            fetch("https://localhost:5001/Korisnik/DodajKorisnika?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
+            + "&ime=" + encodeURIComponent(ime) + "&prezime=" + encodeURIComponent(prezime) + "&JMBG=" + encodeURIComponent(JMBG),
+            {
+                method: "POST"
+            })
+            .then(p => {
+                if (p.ok)
+                {
+                    p.json().then(msg =>
+                    {
+                        this.korisnici.push(new Korisnik(ime + " " + prezime + " " + JMBG));
+                        this.updateKorisnike();
+                        alert(msg.poruka);
+                        resolve();
+                    })
+                }
+                else
+                {
+                    p.json().then(msg => alert(msg.poruka))
+                    reject();
+                }  
+            })
+        }) 
+    }
+
+    updateKorisnike()
+    {
+        let iznajmiKnjiguSelectKorisnik = this.kontejner.querySelector(".iznajmiKnjiguSelectKorisnik");
+        let roditelj = iznajmiKnjiguSelectKorisnik.parentNode;
+        roditelj.removeChild(iznajmiKnjiguSelectKorisnik);
+
+        iznajmiKnjiguSelectKorisnik = document.createElement("select");
+        iznajmiKnjiguSelectKorisnik.classList.add("iznajmiKnjiguSelectKorisnik");
+        let op;
+        this.korisnici.forEach(k => 
+        {
+            op = document.createElement("option");
+            op.innerHTML = k.naziv;
+            op.value = k.naziv;
+            iznajmiKnjiguSelectKorisnik.appendChild(op);
+        })
+        roditelj.appendChild(iznajmiKnjiguSelectKorisnik);
+
+        let vratiKnjiguSelectKorisnik = this.kontejner.querySelector(".vratiKnjiguSelectKorisnik");
+        roditelj = vratiKnjiguSelectKorisnik.parentNode;
+        roditelj.removeChild(vratiKnjiguSelectKorisnik);
+
+        vratiKnjiguSelectKorisnik = document.createElement("select");
+        vratiKnjiguSelectKorisnik.classList.add("vratiKnjiguSelectKorisnik");
+        this.korisnici.forEach(k => 
+        {
+            op = document.createElement("option");
+            op.innerHTML = k.naziv;
+            op.value = k.naziv;
+            vratiKnjiguSelectKorisnik.appendChild(op);
+        })
+        roditelj.appendChild(vratiKnjiguSelectKorisnik);
+    }
+
     iznajmiKnjigu(korisnik, knjiga)
     {
         if (korisnik === "")
@@ -612,7 +608,6 @@ export class Biblioteka
                         this.napuniKontrole();
                         alert(msg.poruka);
                     })
-                    
                 }
                 else
                 {
@@ -695,35 +690,6 @@ export class Biblioteka
             dugme.classList.remove("dostupno");            
             dugme.classList.add("nedostupno");
         }
-    }
-
-    crtajLabelu(host, tekst, klasa)
-    {
-        let labela = document.createElement("label");
-        labela.innerHTML = tekst;
-        labela.className = klasa;
-        host.appendChild(labela);
-
-        return labela;
-    }
-
-    crtajInput(host, klasa)
-    {
-        let input = document.createElement("input");
-        input.className = klasa;
-        host.appendChild(input);
-
-        return input;
-    }
-
-    crtajDugme(host, tekst, klasa)
-    {
-        let dugme = document.createElement("button");
-        dugme.innerHTML = tekst;
-        dugme.className = klasa;
-        host.appendChild(dugme);
-
-        return dugme;
     }
 
     pribaviKorisnike()
@@ -914,7 +880,6 @@ export class Biblioteka
             {
                 p.json().then(k => { alert(k.poruka) })
             }
-
         })
     }
 
@@ -956,7 +921,6 @@ export class Biblioteka
             {
                 p.json().then(k => { alert(k.poruka) })
             }
-
         })
     }
 }

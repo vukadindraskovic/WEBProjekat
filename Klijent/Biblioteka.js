@@ -4,8 +4,9 @@ import { Top5Knjiga } from "./Top5Knjiga.js";
 
 export class Biblioteka
 {
-    constructor(naziv, adresa, kontakt)
+    constructor(id, naziv, adresa, kontakt)
     {
+        this.id = id;
         this.naziv = naziv;
         this.adresa = adresa;
         this.kontakt = kontakt;
@@ -142,7 +143,7 @@ export class Biblioteka
         {
             op = document.createElement("option");
             op.innerHTML = k.naziv;
-            op.value = k.naziv;
+            op.value = k.id;
             selectKorisnik.appendChild(op);
         })
 
@@ -159,7 +160,7 @@ export class Biblioteka
             {
                 op = document.createElement("option");
                 op.innerHTML = k.prikaz;
-                op.value = k.prikaz;
+                op.value = k.id;
                 selectKnjiga.appendChild(op);
             }
         })
@@ -216,7 +217,7 @@ export class Biblioteka
             });
         this.dugmad.forEach(d => d.onclick=(ev) =>
         {
-            this.pritisnutaKnjiga = this.knjige.find(k => k.prikaz === d.value);
+            this.pritisnutaKnjiga = this.knjige.find(k => k.id == d.value);
             this.napuniKontrole();
         })
         host.appendChild(polica);
@@ -318,7 +319,7 @@ export class Biblioteka
         {
             op = document.createElement("option");
             op.innerHTML = k.naziv;
-            op.value = k.naziv;
+            op.value = k.id;
             selectKorisnik.appendChild(op);
         })
 
@@ -335,7 +336,7 @@ export class Biblioteka
             {
                 op = document.createElement("option");
                 op.innerHTML = k.prikaz;
-                op.value = k.prikaz;
+                op.value = k.id;
                 selectKnjiga.appendChild(op);
             }
         })
@@ -392,15 +393,15 @@ export class Biblioteka
 
     vratiKnjigu(korisnik, knjiga, ocena)
     {
-        fetch("https://localhost:5001/Iznajmljivanje/VratiKnjigu?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
-        + "&nazivKorisnika=" + encodeURIComponent(korisnik) + "&nazivKnjige=" + encodeURIComponent(knjiga) + "&ocenaKorisnika=" + ocena,
+        fetch("https://localhost:5001/Iznajmljivanje/VratiKnjigu?idBiblioteke=" + this.id
+        + "&idKorisnika=" + korisnik + "&idKnjige=" + knjiga + "&ocenaKorisnika=" + ocena,
         {
             method: "DELETE"
         }).then(p =>{
             if (p.ok)
             {
                 p.json().then(k => {
-                    let pomKnjiga = this.knjige.find(p => p.prikaz == knjiga);
+                    let pomKnjiga = this.knjige.find(p => p.id == knjiga);
                     pomKnjiga.preostalo++;
                     pomKnjiga.ocena = k.ocena;
                     this.updateKnjige(pomKnjiga);
@@ -441,7 +442,7 @@ export class Biblioteka
         let dugme = knjiga.crtajKnjigu(polica);
         dugme.onclick = (ev) =>
         {
-            this.pritisnutaKnjiga = this.knjige.find(k => k.prikaz === dugme.value);
+            this.pritisnutaKnjiga = this.knjige.find(k => k.id === dugme.value);
             this.napuniKontrole();
         }
         this.dugmad.push(dugme);
@@ -520,7 +521,7 @@ export class Biblioteka
                 return;
             }
     
-            fetch("https://localhost:5001/Korisnik/DodajKorisnika?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
+            fetch("https://localhost:5001/Korisnik/DodajKorisnika?idBiblioteke=" + this.id
             + "&ime=" + encodeURIComponent(ime) + "&prezime=" + encodeURIComponent(prezime) + "&JMBG=" + encodeURIComponent(JMBG),
             {
                 method: "POST"
@@ -558,7 +559,7 @@ export class Biblioteka
         {
             op = document.createElement("option");
             op.innerHTML = k.naziv;
-            op.value = k.naziv;
+            op.value = k.id;
             iznajmiKnjiguSelectKorisnik.appendChild(op);
         })
         roditelj.appendChild(iznajmiKnjiguSelectKorisnik);
@@ -573,7 +574,7 @@ export class Biblioteka
         {
             op = document.createElement("option");
             op.innerHTML = k.naziv;
-            op.value = k.naziv;
+            op.value = k.id;
             vratiKnjiguSelectKorisnik.appendChild(op);
         })
         roditelj.appendChild(vratiKnjiguSelectKorisnik);
@@ -593,8 +594,8 @@ export class Biblioteka
             return;
         }
 
-        fetch("https://localhost:5001/Iznajmljivanje/IznajmiKnjigu?kontaktBiblioteke=" + encodeURIComponent(this.kontakt)
-        + "&nazivKorisnika=" + encodeURIComponent(korisnik) + "&nazivKnjige=" + encodeURIComponent(knjiga),
+        fetch("https://localhost:5001/Iznajmljivanje/IznajmiKnjigu?idBiblioteke=" + this.id
+        + "&idKorisnika=" + korisnik + "&idKnjige=" + knjiga,
         {
             method: "POST"
         }).then(p =>{
@@ -602,7 +603,7 @@ export class Biblioteka
                 {
                     p.json().then(msg =>
                     {
-                        let pomKnjiga = this.knjige.find(k => k.prikaz == knjiga);
+                        let pomKnjiga = this.knjige.find(k => k.id == knjiga);
                         pomKnjiga.preostalo--;
                         this.updateKnjige(pomKnjiga);
                         this.napuniKontrole();
@@ -631,7 +632,7 @@ export class Biblioteka
             {
                 op = document.createElement("option");
                 op.innerHTML = k.prikaz;
-                op.value = k.prikaz;
+                op.value = k.id;
                 iznajmiKnjiguSelectKnjiga.appendChild(op);
             }
         })
@@ -649,7 +650,7 @@ export class Biblioteka
             {
                 op = document.createElement("option");
                 op.innerHTML = k.prikaz;
-                op.value = k.prikaz;
+                op.value = k.id;
                 vratiKnjiguSelectKnjiga.appendChild(op);
             }
         })
@@ -657,7 +658,7 @@ export class Biblioteka
 
         if (knjiga === null) return;
 
-        let dugme = this.dugmad.find(k => k.value === knjiga.prikaz);
+        let dugme = this.dugmad.find(k => k.value == knjiga.id);
         if (knjiga.preostalo > 0)
         {
             dugme.classList.remove("nedostupno");
@@ -695,7 +696,7 @@ export class Biblioteka
     pribaviKorisnike()
     {
         return new Promise( (resolve, reject) => {
-            fetch("https://localhost:5001/Korisnik/PreuzmiKorisnikeIzBiblioteke?kontaktBiblioteke=" + encodeURIComponent(this.kontakt),
+            fetch("https://localhost:5001/Korisnik/PreuzmiKorisnikeIzBiblioteke?idBiblioteke=" + this.id,
             {
                 method: "GET"
             })
@@ -705,7 +706,7 @@ export class Biblioteka
                     p.json().then(k => {
                         k.forEach(korisnik =>
                             {
-                                this.korisnici.push(new Korisnik(korisnik.naziv));
+                                this.korisnici.push(new Korisnik(korisnik.id, korisnik.naziv));
                             });
                             
                         resolve();
@@ -725,7 +726,7 @@ export class Biblioteka
     pribaviKnjige()
     {   
         return new Promise( (resolve, reject) => {
-            let fetchString = "https://localhost:5001/Knjiga/PreuzmiKnjigeIzBiblioteke?kontaktBiblioteke=" + encodeURIComponent(this.kontakt);
+            let fetchString = "https://localhost:5001/Knjiga/PreuzmiKnjigeIzBiblioteke?idBiblioteke=" + this.id;
             fetch(fetchString,
             {
                 method: "GET"
@@ -736,7 +737,7 @@ export class Biblioteka
                     p.json().then(k => {
                         k.forEach(knjiga =>
                             {
-                                this.knjige.push(new Knjiga(knjiga.autor, knjiga.naslov, knjiga.prikaz, knjiga.ocena, knjiga.kolicina, knjiga.preostalo));
+                                this.knjige.push(new Knjiga(knjiga.id, knjiga.autor, knjiga.naslov, knjiga.prikaz, knjiga.ocena, knjiga.kolicina, knjiga.preostalo));
                             });
                             
                         resolve();
@@ -756,7 +757,7 @@ export class Biblioteka
     pribaviNajboljeKnjige(knjige)
     {   
         return new Promise( (resolve, reject) => {
-            let fetchString = "https://localhost:5001/Knjiga/Top5KnjigaIzBiblioteke?kontaktBiblioteke=" + encodeURIComponent(this.kontakt);
+            let fetchString = "https://localhost:5001/Knjiga/Top5KnjigaIzBiblioteke?idBiblioteke=" + this.id;
             fetch(fetchString,
             {
                 method: "GET"
@@ -812,7 +813,7 @@ export class Biblioteka
             return;
         }
 
-        fetch("https://localhost:5001/Knjiga/DodajKnjiguUBiblioteku?kontaktBiblioteke=" + encodeURIComponent(this.kontakt) +
+        fetch("https://localhost:5001/Knjiga/DodajKnjiguUBiblioteku?idBiblioteke=" + this.id +
         "&autorKnjige=" + encodeURIComponent(autor) + "&naslovKnjige=" + encodeURIComponent(naslov) + "&kolicinaKnjige=" + encodeURIComponent(kolicina),
         {
             method: "POST"
@@ -859,8 +860,8 @@ export class Biblioteka
         let kolicinaInput = this.kontejner.querySelector(".kolicinaInput");
         let novaKolicina = kolicinaInput.value;
 
-        fetch("https://localhost:5001/Knjiga/IzmeniKnjiguUBiblioteci?kontaktBiblioteke=" + encodeURIComponent(this.kontakt) +
-        "&nazivKnjige=" + encodeURIComponent(this.pritisnutaKnjiga.prikaz) + "&novaKolicinaKnjige=" + encodeURIComponent(novaKolicina),
+        fetch("https://localhost:5001/Knjiga/IzmeniKnjiguUBiblioteci?idBiblioteke=" + this.id +
+        "&idKnjige=" + this.pritisnutaKnjiga.id + "&novaKolicinaKnjige=" + novaKolicina,
         {
             method: "PUT"
         })
@@ -900,8 +901,8 @@ export class Biblioteka
             return;
         }
 
-        fetch("https://localhost:5001/Knjiga/UkloniKnjiguIzBiblioteke?kontaktBiblioteke=" + encodeURIComponent(this.kontakt) +
-        "&nazivKnjige=" + encodeURIComponent(this.pritisnutaKnjiga.prikaz),
+        fetch("https://localhost:5001/Knjiga/UkloniKnjiguIzBiblioteke?idBiblioteke=" + this.id +
+        "&idKnjige=" + this.pritisnutaKnjiga.id,
         {
             method: "DELETE"
         })
@@ -910,7 +911,7 @@ export class Biblioteka
             {
                 p.json().then(k => {
                     this.ukloniKnjiguSaPolice(this.pritisnutaKnjiga);
-                    this.knjige = this.knjige.filter(k => this.pritisnutaKnjiga.prikaz != k.prikaz);
+                    this.knjige = this.knjige.filter(k => this.pritisnutaKnjiga.id != k.id);
                     this.updateKnjige(this.pritisnutaKnjiga);
                     this.pritisnutaKnjiga = null;
                     this.napuniKontrole();

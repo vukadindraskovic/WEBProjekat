@@ -7,7 +7,7 @@ fetch("https://localhost:5001/Biblioteka/PreuzmiDveBiblioteke")
     p.json().then(biblioteke => {
         biblioteke.forEach(biblioteka => 
         {
-            listaBiblioteki.push(new Biblioteka(biblioteka.naziv, biblioteka.adresa, biblioteka.kontakt));
+            listaBiblioteki.push(new Biblioteka(biblioteka.id, biblioteka.naziv, biblioteka.adresa, biblioteka.kontakt));
         })
 
         // listaBiblioteki.forEach(b => 

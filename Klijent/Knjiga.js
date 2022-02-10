@@ -1,7 +1,8 @@
 export class Knjiga
 {
-    constructor(autor, naslov, prikaz, ocena, kolicina, preostalo)
+    constructor(id, autor, naslov, prikaz, ocena, kolicina, preostalo)
     {
+        this.id = id;
         this.autor = autor;
         this.naslov = naslov;
         this.prikaz = prikaz;
@@ -14,7 +15,7 @@ export class Knjiga
     {
         let dugme = document.createElement("button");
         dugme.innerHTML = this.prikaz;
-        dugme.value = this.prikaz;
+        dugme.value = this.id;
         if (this.preostalo > 0)
             dugme.classList.add("rotate", "dostupno");
         else

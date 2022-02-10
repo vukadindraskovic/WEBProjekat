@@ -21,21 +21,21 @@ namespace WEBProjekat.Controllers
 
         [Route("IznajmiKnjigu")]
         [HttpPost]
-        public async Task<ActionResult> IznajmiKnjigu([FromQuery] string kontaktBiblioteke, [FromQuery] string nazivKorisnika, [FromQuery] string nazivKnjige)
+        public async Task<ActionResult> IznajmiKnjigu([FromQuery] int idBiblioteke, [FromQuery] int idKorisnika, [FromQuery] int idKnjige)
         {
-            if (string.IsNullOrWhiteSpace(kontaktBiblioteke) || kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
             }
 
-            if (string.IsNullOrWhiteSpace(nazivKorisnika) || nazivKorisnika.Length > 50)
+            if (idKorisnika <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan korisnik!"});
+                return BadRequest(new { Poruka = "Korisnik ne postoji!"});
             }
 
-            if (string.IsNullOrWhiteSpace(nazivKnjige) || nazivKnjige.Length > 50)
+            if (idKnjige <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešna knjiga!"});
+                return BadRequest(new { Poruka = "Knjiga ne postoji!"});
             }
 
             // slucaj gde biblioteka ne postoji
@@ -46,37 +46,32 @@ namespace WEBProjekat.Controllers
 
             try
             {
-                var bibliotekaUpit = Context.Biblioteke.Where(p => p.Kontakt == kontaktBiblioteke);
-
-                var biblioteka1 = bibliotekaUpit.FirstOrDefault();
+                var biblioteka1 = Context.Biblioteke.Find(idBiblioteke);
 
                 if (biblioteka1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji."});
+                    return BadRequest(new { Poruka = "Biblioteka ne postoji."});
                 }
 
-                var korisnikUpit = Context.Korisnici.Where(p => p.Ime + " " + p.Prezime + " " + p.JMBG == nazivKorisnika);
-
-                var korisnik1 = korisnikUpit.FirstOrDefault();
+                var korisnik1 = Context.Korisnici.Find(idKorisnika);
 
                 if (korisnik1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Korisnik '{nazivKorisnika}' ne postoji."});
+                    return BadRequest(new { Poruka = $"Korisnik ne postoji."});
                 }
 
-                var korisnik2 = korisnikUpit.Include(p => p.Biblioteka).FirstOrDefault();
+                var korisnik2 = Context.Korisnici.Where(p => p.ID == idKorisnika).Include(p => p.Biblioteka).FirstOrDefault();
 
-                if (korisnik2.Biblioteka.Kontakt != kontaktBiblioteke)
+                if (korisnik2.Biblioteka.ID != idBiblioteke)
                 {
                     return BadRequest(new { Poruka = $"Korisnik '{korisnik2.ZaPrikaz}' ne pripada biblioteci '{biblioteka1.Naziv}', vec '{korisnik2.Biblioteka.Naziv}'."});
                 }
 
-                var knjigaUpit = Context.Knjige.Where(p => p.Autor + " - " + p.Naslov == nazivKnjige);
-                var knjiga1 = knjigaUpit.FirstOrDefault();
+                var knjiga1 = Context.Knjige.Find(idKnjige);
 
                 if (knjiga1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Knjiga '{nazivKnjige}' ne postoji!"});
+                    return BadRequest(new { Poruka = $"Knjiga ne postoji!"});
                 }
 
                 var knjigaBibliotekaUpit = Context.KnjigeBiblioteke.Include(p => p.Biblioteka)
@@ -88,7 +83,7 @@ namespace WEBProjekat.Controllers
 
                 if (knjigaBiblioteka1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Knjiga '{nazivKnjige}' ne postoji u biblioteci '{biblioteka1.Naziv}'."});
+                    return BadRequest(new { Poruka = $"Knjiga '{knjiga1.ZaPrikaz}' ne postoji u biblioteci '{biblioteka1.Naziv}'."});
                 }
 
                 // knjiga postoji u biblioteci, kao i korisnik u biblioteci, treba samo da se ispita da li ima knjge na stanju
@@ -121,21 +116,21 @@ namespace WEBProjekat.Controllers
 
         [Route("VratiKnjigu")]
         [HttpDelete]
-        public async Task<ActionResult> VratiKnjigu([FromQuery] string kontaktBiblioteke, [FromQuery] string nazivKorisnika, [FromQuery] string nazivKnjige, [FromQuery] int ocenaKorisnika)
+        public async Task<ActionResult> VratiKnjigu([FromQuery] int idBiblioteke, [FromQuery] int idKorisnika, [FromQuery] int idKnjige, [FromQuery] int ocenaKorisnika)
         {
-            if (string.IsNullOrWhiteSpace(kontaktBiblioteke) || kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
             }
 
-            if (string.IsNullOrWhiteSpace(nazivKorisnika) || nazivKorisnika.Length > 50)
+            if (idKorisnika <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan korisnik!"});
+                return BadRequest(new { Poruka = "Korisnik ne postoji!"});
             }
 
-            if (string.IsNullOrWhiteSpace(nazivKnjige) || nazivKnjige.Length > 50)
+            if (idKnjige <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešna knjiga!"});
+                return BadRequest(new { Poruka = "Knjiga ne postoji!"});
             }
 
             if (ocenaKorisnika < 1 || ocenaKorisnika > 5)
@@ -145,37 +140,32 @@ namespace WEBProjekat.Controllers
 
             try
             {
-                var bibliotekaUpit = Context.Biblioteke.Where(p => p.Kontakt == kontaktBiblioteke);
-
-                var biblioteka1 = bibliotekaUpit.FirstOrDefault();
+                var biblioteka1 = Context.Biblioteke.Find(idBiblioteke);
 
                 if (biblioteka1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji."});
+                    return BadRequest(new { Poruka = $"Biblioteka ne postoji."});
                 }
 
-                var korisnikUpit = Context.Korisnici.Where(p => p.Ime + " " + p.Prezime + " " + p.JMBG == nazivKorisnika);
-
-                var korisnik1 = korisnikUpit.FirstOrDefault();
+                var korisnik1 = Context.Korisnici.Find(idKorisnika);
 
                 if (korisnik1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Korisnik '{nazivKorisnika}' ne postoji."});
+                    return BadRequest(new { Poruka = $"Korisnik ne postoji."});
                 }
 
-                var korisnik2 = korisnikUpit.Include(p => p.Biblioteka).FirstOrDefault();
+                var korisnik2 = Context.Korisnici.Where(p => p.ID == idKorisnika).Include(p => p.Biblioteka).FirstOrDefault();
 
-                if (korisnik2.Biblioteka.Kontakt != kontaktBiblioteke)
+                if (korisnik2.Biblioteka.ID != idBiblioteke)
                 {
                     return BadRequest(new { Poruka = $"Korisnik '{korisnik2.ZaPrikaz}' ne pripada biblioteci '{biblioteka1.Naziv}', vec '{korisnik2.Biblioteka.Naziv}'."});
                 }
 
-                var knjigaUpit = Context.Knjige.Where(p => p.Autor + " - " + p.Naslov == nazivKnjige);
-                var knjiga1 = knjigaUpit.FirstOrDefault();
+                var knjiga1 = Context.Knjige.Find(idKnjige);
 
                 if (knjiga1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Knjiga '{nazivKnjige}' ne postoji!"});
+                    return BadRequest(new { Poruka = $"Knjiga ne postoji!"});
                 }
 
                 var knjigaBibliotekaUpit = Context.KnjigeBiblioteke.Include(p => p.Biblioteka)
@@ -187,7 +177,7 @@ namespace WEBProjekat.Controllers
 
                 if (knjigaBiblioteka1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Knjiga '{nazivKnjige}' ne postoji u biblioteci '{biblioteka1.Naziv}'."});
+                    return BadRequest(new { Poruka = $"Knjiga '{idKnjige}' ne postoji u biblioteci '{biblioteka1.Naziv}'."});
                 }
 
                 // knjiga postoji u biblioteci, kao i korisnik u biblioteci, treba samo da se ispita da li je moguce vratiti

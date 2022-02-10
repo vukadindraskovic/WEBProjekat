@@ -21,36 +21,32 @@ namespace WEBProjekat.Controllers
 
         [Route("PreuzmiKorisnikeIzBiblioteke")]
         [HttpGet]
-        public async Task<ActionResult> PreuzmiKorisnikeIzBiblioteke([FromQuery] string kontaktBiblioteke)
+        public async Task<ActionResult> PreuzmiKorisnikeIzBiblioteke([FromQuery] int idBiblioteke)
         {
-            if (kontaktBiblioteke is null)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Morate uneti kontakt biblioteke!"});
-            }
-
-            if (kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
-            {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
             }
 
             try
             {
-                 var bibliotekaUBazi = Context.Biblioteke.Where(p => p.Kontakt == kontaktBiblioteke).FirstOrDefault();
+                 var bibliotekaUBazi = Context.Biblioteke.Find(idBiblioteke);
 
                 if (bibliotekaUBazi is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji!"});
+                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {idBiblioteke} ne postoji!"});
                 }
 
                 var korisnici = await Context.Korisnici
                                             .Include(p => p.Biblioteka)
-                                            .Where(p => p.Biblioteka.Kontakt == kontaktBiblioteke)
+                                            .Where(p => p.Biblioteka == bibliotekaUBazi)
                                             .ToListAsync();
                             
                 return Ok(
                     korisnici.Select(p => 
                     new
                     {
+                        ID = p.ID,
                         Naziv = p.ZaPrikaz
                     }
                     )
@@ -65,11 +61,11 @@ namespace WEBProjekat.Controllers
 
         [Route("DodajKorisnika")]
         [HttpPost]
-        public async Task<ActionResult> DodajKorisnika([FromQuery] string kontaktBiblioteke, [FromQuery] string ime, [FromQuery] string prezime, [FromQuery] string JMBG)
+        public async Task<ActionResult> DodajKorisnika([FromQuery] int idBiblioteke, [FromQuery] string ime, [FromQuery] string prezime, [FromQuery] string JMBG)
         {
-            if (string.IsNullOrWhiteSpace(kontaktBiblioteke) || kontaktBiblioteke.Length > 50)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
             }
 
             if (string.IsNullOrWhiteSpace(JMBG) || JMBG.Length != 13)
@@ -89,11 +85,11 @@ namespace WEBProjekat.Controllers
 
             try
             {
-                var biblioteka = Context.Biblioteke.Where(p => p.Kontakt == kontaktBiblioteke).FirstOrDefault();
+                var biblioteka = Context.Biblioteke.Find(idBiblioteke);
 
                 if (biblioteka is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji!"});
+                    return BadRequest(new { Poruka = $"Biblioteka ne postoji!"});
                 }
 
                 var korisnik = Context.Korisnici.Where(p => p.JMBG == JMBG).Include(p => p.Biblioteka).FirstOrDefault();

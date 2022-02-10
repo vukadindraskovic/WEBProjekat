@@ -30,6 +30,7 @@ namespace WEBProjekat.Controllers
                     biblioteke.Select(p => 
                         new
                         {
+                            ID = p.ID,
                             Naziv = p.Naziv,
                             Adresa = p.Adresa,
                             Kontakt = p.Kontakt

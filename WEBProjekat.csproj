@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>WEB_projekat</RootNamespace>
+    <RootNamespace>WEBProjekat</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

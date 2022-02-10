@@ -22,25 +22,20 @@ namespace WEBProjekat.Controllers
 
         [Route("PreuzmiKnjigeIzBiblioteke")]
         [HttpGet]
-        public async Task<ActionResult> PreuzmiKnjigeIzBiblioteke([FromQuery] string kontaktBiblioteke)
+        public async Task<ActionResult> PreuzmiKnjigeIzBiblioteke([FromQuery] int idBiblioteke)
         {
-            if (kontaktBiblioteke is null)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Morate uneti kontakt biblioteke!"});
-            }
-
-            if (kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
-            {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Morate izabrati biblioteku!"});
             }
 
             try
             {
-                var biblioteka1 = DaLiPostojiBiblioteka(kontaktBiblioteke);
+                var biblioteka1 = DaLiPostojiBiblioteka(idBiblioteke);
 
                 if (biblioteka1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji!"});
+                    return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
                 }
 
                 var knjigaUpit = Context.KnjigeBiblioteke.Include(p => p.Biblioteka)
@@ -54,6 +49,7 @@ namespace WEBProjekat.Controllers
                     knjige.Select(p =>
                         new
                         {   
+                            ID = p.ID,
                             Autor = p.Autor,
                             Naslov = p.Naslov,
                             Prikaz = p.ZaPrikaz,
@@ -71,11 +67,11 @@ namespace WEBProjekat.Controllers
 
         [Route("DodajKnjiguUBiblioteku")]
         [HttpPost]
-        public async Task<ActionResult> DodajKnjiguUBiblioteku([FromQuery] string kontaktBiblioteke, [FromQuery] string autorKnjige, [FromQuery] string naslovKnjige, [FromQuery] int kolicinaKnjige)
+        public async Task<ActionResult> DodajKnjiguUBiblioteku([FromQuery] int idBiblioteke, [FromQuery] string autorKnjige, [FromQuery] string naslovKnjige, [FromQuery] int kolicinaKnjige)
         {
-            if (string.IsNullOrWhiteSpace(kontaktBiblioteke) || kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Morate izabrati biblioteku."});
             }
 
             if (string.IsNullOrWhiteSpace(naslovKnjige) || naslovKnjige.Length > 50)
@@ -95,11 +91,11 @@ namespace WEBProjekat.Controllers
 
             try
             {
-                var biblioteka1 = DaLiPostojiBiblioteka(kontaktBiblioteke);
+                var biblioteka1 = DaLiPostojiBiblioteka(idBiblioteke);
 
                 if (biblioteka1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji!"});
+                    return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
                 }
 
                 var knjiga1 = DaLiPostojiKnjiga(autorKnjige, naslovKnjige);
@@ -158,11 +154,16 @@ namespace WEBProjekat.Controllers
 
         [Route("IzmeniKnjiguUBiblioteci")]
         [HttpPut]
-        public async Task<ActionResult> IzmeniKnjiguUBiblioteci([FromQuery] string kontaktBiblioteke, [FromQuery] string nazivKnjige, [FromQuery] int novaKolicinaKnjige)
+        public async Task<ActionResult> IzmeniKnjiguUBiblioteci([FromQuery] int idBiblioteke, [FromQuery] int idKnjige, [FromQuery] int novaKolicinaKnjige)
         {
-            if (string.IsNullOrWhiteSpace(kontaktBiblioteke) || kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
+            }
+
+            if (idKnjige <= 0)
+            {
+                return BadRequest(new { Poruka = "Knjiga ne postoji!"});
             }
 
             if (novaKolicinaKnjige < 1 || novaKolicinaKnjige > 100)
@@ -170,25 +171,20 @@ namespace WEBProjekat.Controllers
                 return BadRequest(new { Poruka = "Nevalidna količina!"});
             }
 
-            if (string.IsNullOrWhiteSpace(nazivKnjige) || nazivKnjige.Length > 103)
-            {
-                return BadRequest(new { Poruka = "Pogrešan stari naziv knjige!"});
-            }
-
             try
             {
-                var biblioteka1 = DaLiPostojiBiblioteka(kontaktBiblioteke);
+                var biblioteka1 = DaLiPostojiBiblioteka(idBiblioteke);
 
                 if (biblioteka1 is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji!"});
+                    return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
                 }
 
-                var knjiga1 = DaLiPostojiKnjiga(nazivKnjige);
+                var knjiga1 = DaLiPostojiKnjiga(idKnjige);
 
                 if (knjiga1 is null) // ispitujemo da li knjiga postoji
                 {
-                    return BadRequest(new { Poruka = $"Knjiga {nazivKnjige} ne postoji."});
+                    return BadRequest(new { Poruka = "Knjiga ne postoji."});
                 }
                 
                 var knjigaPostoji = Context.KnjigeBiblioteke.Include(p => p.Knjiga)
@@ -224,16 +220,16 @@ namespace WEBProjekat.Controllers
 
         [Route("UkloniKnjiguIzBiblioteke")]
         [HttpDelete]
-        public async Task<ActionResult> UkloniKnjiguIzBiblioteke([FromQuery] string kontaktBiblioteke, [FromQuery] string nazivKnjige)
+        public async Task<ActionResult> UkloniKnjiguIzBiblioteke([FromQuery] int idBiblioteke, [FromQuery] int idKnjige)
         {
-            if (string.IsNullOrWhiteSpace(kontaktBiblioteke) || kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!"});
+                return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
             }
 
-            if (string.IsNullOrWhiteSpace(nazivKnjige) || nazivKnjige.Length > 103)
+            if (idKnjige <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan naziv knjige!"});
+                return BadRequest(new { Poruka = "Knjiga ne postoji!"});
             }
 
             // ispitati da li postoji zeljena knjiga i biblioteka uopste, zatim da li knjiga pripada biblioteci
@@ -244,16 +240,16 @@ namespace WEBProjekat.Controllers
 
             try
             {
-                var biblioteka = DaLiPostojiBiblioteka(kontaktBiblioteke);
+                var biblioteka = DaLiPostojiBiblioteka(idBiblioteke);
                 if (biblioteka is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji!"});
+                    return BadRequest(new { Poruka = $"Biblioteka ne postoji!"});
                 }
 
-                var knjiga = DaLiPostojiKnjiga(nazivKnjige);
+                var knjiga = DaLiPostojiKnjiga(idKnjige);
                 if (knjiga == null) // ispitujemo da li knjiga postoji
                 {
-                    return BadRequest(new { Poruka = $"Knjiga '{nazivKnjige}' ne postoji."});
+                    return BadRequest(new { Poruka = $"Knjiga ne postoji."});
                 }
 
                 var knjigaBiblioteka = Context.KnjigeBiblioteke.Include(p => p.Knjiga)
@@ -294,19 +290,19 @@ namespace WEBProjekat.Controllers
 
         [Route("Top5KnjigaIzBiblioteke")]
         [HttpGet]
-        public async Task<ActionResult> Top5KnjigaIzBiblioteke([FromQuery] string kontaktBiblioteke)
+        public async Task<ActionResult> Top5KnjigaIzBiblioteke([FromQuery] int idBiblioteke)
         {
-            if (string.IsNullOrWhiteSpace(kontaktBiblioteke) || kontaktBiblioteke.Length < 10 || kontaktBiblioteke.Length > 11)
+            if (idBiblioteke <= 0)
             {
-                return BadRequest(new { Poruka = "Pogrešan kontakt biblioteke!" });
+                return BadRequest(new { Poruka = "Biblioteka ne postoji!"});
             }
 
             try
             {
-                var biblioteka = DaLiPostojiBiblioteka(kontaktBiblioteke);
+                var biblioteka = DaLiPostojiBiblioteka(idBiblioteke);
                 if (biblioteka is null)
                 {
-                    return BadRequest(new { Poruka = $"Biblioteka sa kontakt brojem {kontaktBiblioteke} ne postoji!" });
+                    return BadRequest(new { Poruka = $"Biblioteka ne postoji!" });
                 }
 
                 var sveKnjige = await Context.KnjigeBiblioteke.Include(p => p.Biblioteka)
@@ -337,15 +333,15 @@ namespace WEBProjekat.Controllers
         }
 
         [HttpGet]
-        private Biblioteka DaLiPostojiBiblioteka(string kontaktBiblioteke)
+        private Biblioteka DaLiPostojiBiblioteka(int idBiblioteke)
         {
-            return Context.Biblioteke.Where(p => p.Kontakt == kontaktBiblioteke).FirstOrDefault();
+            return Context.Biblioteke.Find(idBiblioteke);
         }
 
         [HttpGet]
-        private Knjiga DaLiPostojiKnjiga(string nazivKnjige)
+        private Knjiga DaLiPostojiKnjiga(int idKnjige)
         {
-            return Context.Knjige.Where(p => p.Autor + " - " +  p.Naslov == nazivKnjige).FirstOrDefault();
+            return Context.Knjige.Find(idKnjige);
         }
 
         [HttpGet]

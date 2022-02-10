@@ -1,7 +1,8 @@
 export class Korisnik
 {
-    constructor(naziv)
+    constructor(id, naziv)
     {
+        this.id = id;
         this.naziv = naziv;
     }
 }

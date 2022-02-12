@@ -65,6 +65,122 @@ namespace WEBProjekat.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("PretragaKnjige")]
+        public async Task<ActionResult> PretragaKnjige([FromQuery] int idBiblioteke,[FromQuery] string autor,[FromQuery] string naslov)
+        {
+            if (idBiblioteke <= 0)
+            {
+                return BadRequest("Biblioteka ne postoji!");
+            }
+
+            if (string.IsNullOrWhiteSpace(autor) && string.IsNullOrWhiteSpace(naslov))
+            {
+                return BadRequest( new { Poruka = "Morate uneti parametre pretrage!" });
+            }
+
+            try
+            {
+                var biblioteka = await Context.Biblioteke.FindAsync(idBiblioteke);
+
+                if (biblioteka is null)
+                {
+                    return BadRequest("Biblioteka ne postoji!");
+                }
+
+                if (string.IsNullOrWhiteSpace(autor))
+                {
+                    var filter = await Context.KnjigeBiblioteke.Include(p => p.Biblioteka)
+                                                        .Where(p => p.Biblioteka == biblioteka)
+                                                        .Include(p => p.Knjiga)
+                                                        .ThenInclude(p => p.Biblioteke)
+                                                        .Where(p => p.Knjiga.Naslov.Contains(naslov))
+                                                        .Select(p => p.Knjiga)
+                                                        .ToListAsync();
+                                                        
+                    if (filter.Count <= 0)
+                    {
+                        return BadRequest("Nema podudaranja!");
+                    }
+                    
+                    return Ok(
+                            filter.Select(p =>
+                                new
+                                {   
+                                    ID = p.ID,
+                                    Autor = p.Autor,
+                                    Naslov = p.Naslov,
+                                    Prikaz = p.ZaPrikaz,
+                                    Ocena = p.Ocena >= 1 ? Math.Round(p.Ocena, 2).ToString() : "UNK",
+                                    Kolicina = p.Biblioteke.Where(q => q.Biblioteka == biblioteka).Select(q => q.Kolicina).FirstOrDefault(),
+                                    Preostalo = p.Biblioteke.Where(q => q.Biblioteka == biblioteka).Select(q => q.Preostalo).FirstOrDefault()
+                                }).ToList()
+                        );
+                }
+                else if (string.IsNullOrWhiteSpace(naslov))
+                {
+                    var filter = await Context.KnjigeBiblioteke.Include(p => p.Biblioteka)
+                                                        .Where(p => p.Biblioteka == biblioteka)
+                                                        .Include(p => p.Knjiga)
+                                                        .ThenInclude(p => p.Biblioteke)
+                                                        .Where(p => p.Knjiga.Autor.Contains(autor))
+                                                        .Select(p => p.Knjiga)
+                                                        .ToListAsync();
+                    if (filter.Count <= 0)
+                    {
+                        return BadRequest("Nema podudaranja!");
+                    }
+                    
+                    return Ok(
+                            filter.Select(p =>
+                                new
+                                {   
+                                    ID = p.ID,
+                                    Autor = p.Autor,
+                                    Naslov = p.Naslov,
+                                    Prikaz = p.ZaPrikaz,
+                                    Ocena = p.Ocena >= 1 ? Math.Round(p.Ocena, 2).ToString() : "UNK",
+                                    Kolicina = p.Biblioteke.Where(q => q.Biblioteka == biblioteka).Select(q => q.Kolicina).FirstOrDefault(),
+                                    Preostalo = p.Biblioteke.Where(q => q.Biblioteka == biblioteka).Select(q => q.Preostalo).FirstOrDefault()
+                                }).ToList()
+                        );
+                }
+                else
+                {
+                    var filter = await Context.KnjigeBiblioteke.Include(p => p.Biblioteka)
+                                                        .Where(p => p.Biblioteka == biblioteka)
+                                                        .Include(p => p.Knjiga)
+                                                        .ThenInclude(p => p.Biblioteke)
+                                                        .Where(p => p.Knjiga.Autor.Contains(autor) && p.Knjiga.Naslov.Contains(naslov))
+                                                        .Select(p => p.Knjiga)
+                                                        .ToListAsync();
+
+                    if (filter.Count <= 0)
+                    {
+                        return BadRequest("Nema podudaranja!");
+                    }
+
+                    return Ok(
+                            filter.Select(p =>
+                                new
+                                {   
+                                    ID = p.ID,
+                                    Autor = p.Autor,
+                                    Naslov = p.Naslov,
+                                    Prikaz = p.ZaPrikaz,
+                                    Ocena = p.Ocena >= 1 ? Math.Round(p.Ocena, 2).ToString() : "UNK",
+                                    Kolicina = p.Biblioteke.Where(q => q.Biblioteka == biblioteka).Select(q => q.Kolicina).FirstOrDefault(),
+                                    Preostalo = p.Biblioteke.Where(q => q.Biblioteka == biblioteka).Select(q => q.Preostalo).FirstOrDefault()
+                                }).ToList()
+                        );
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { Poruka = e.Message });
+            }
+        }
+
         [Route("DodajKnjiguUBiblioteku")]
         [HttpPost]
         public async Task<ActionResult> DodajKnjiguUBiblioteku([FromQuery] int idBiblioteke, [FromQuery] string autorKnjige, [FromQuery] string naslovKnjige, [FromQuery] int kolicinaKnjige)
@@ -142,6 +258,7 @@ namespace WEBProjekat.Controllers
                     knjiga1 = knjigaZaUnos;
                 
                 return Ok(new { 
+                    ID = knjiga1.ID,
                     Ocena = knjiga1.Ocena >= 1 ? Math.Round(knjiga1.Ocena, 2).ToString() : "UNK",
                     Poruka = $"Knjiga '{knjiga1.ZaPrikaz}' je uspešno dodata u biblioteku '{biblioteka1.Naziv}'."
                 });

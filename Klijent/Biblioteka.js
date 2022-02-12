@@ -442,7 +442,7 @@ export class Biblioteka
         let dugme = knjiga.crtajKnjigu(polica);
         dugme.onclick = (ev) =>
         {
-            this.pritisnutaKnjiga = this.knjige.find(k => k.id === dugme.value);
+            this.pritisnutaKnjiga = this.knjige.find(k => k.id == dugme.value);
             this.napuniKontrole();
         }
         this.dugmad.push(dugme);
@@ -531,7 +531,7 @@ export class Biblioteka
                 {
                     p.json().then(msg =>
                     {
-                        this.korisnici.push(new Korisnik(ime + " " + prezime + " " + JMBG));
+                        this.korisnici.push(new Korisnik(msg.id, ime + " " + prezime + " " + JMBG));
                         this.updateKorisnike();
                         alert(msg.poruka);
                         resolve();
@@ -673,14 +673,14 @@ export class Biblioteka
 
     ukloniKnjiguSaPolice(knjiga)
     {
-        let dugme = this.dugmad.find(k => k.value === knjiga.prikaz);
+        let dugme = this.dugmad.find(k => k.value == knjiga.id);
         let roditelj = dugme.parentNode;
         roditelj.removeChild(dugme);
     }
 
     updateKnjiguSaPolice(knjiga)
     {
-        let dugme = this.dugmad.find(k => k.value === knjiga.prikaz);
+        let dugme = this.dugmad.find(k => k.value == knjiga.id);
         if (knjiga.preostalo > 0)
         {
             dugme.classList.remove("nedostupno");
@@ -823,7 +823,7 @@ export class Biblioteka
             {
                 p.json().then(k => 
                 {
-                    let novaKnjiga = new Knjiga(autor, naslov, autor + " - " + naslov, k.ocena, kolicina, kolicina);
+                    let novaKnjiga = new Knjiga(k.id, autor, naslov, autor + " - " + naslov, k.ocena, kolicina, kolicina);
                     this.knjige.push(novaKnjiga);
                     this.pritisnutaKnjiga = novaKnjiga;
                     this.dodajKnjiguNaPolicu(novaKnjiga);

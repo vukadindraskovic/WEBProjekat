@@ -106,7 +106,9 @@ namespace WEBProjekat.Controllers
                 korisnikSaKlijenta.Biblioteka = biblioteka;
                 Context.Korisnici.Add(korisnikSaKlijenta);
                 await Context.SaveChangesAsync();
-                return Ok(new { Poruka = $"Korisnik '{korisnikSaKlijenta.ZaPrikaz}' je uspešno dodat u biblioteku '{biblioteka.Naziv}'."});
+                return Ok(new { ID = korisnikSaKlijenta.ID,
+                                Poruka = $"Korisnik '{korisnikSaKlijenta.ZaPrikaz}' je uspešno dodat u biblioteku '{biblioteka.Naziv}'."
+                            });
             }
             catch (Exception e)
             {
